@@ -208,6 +208,10 @@ func (nw *network) handleSubnetEvents(batch []lease.Event) {
 					// Set the route - the kernel would ARP for the Gw IP address if it hadn't already been set above so make sure
 					// this is done last.
 					if err := retry.Do(func() error {
+						route_err := netlink.RouteReplace(&vxlanRoute)
+						if route_err != nil {
+							log.Error("Additional logging RouteReplace failed: ", route_err)
+						}
 						return netlink.RouteReplace(&vxlanRoute)
 					}); err != nil {
 						log.Errorf("failed to add vxlanRoute (%s -> %s): %v", vxlanRoute.Dst, vxlanRoute.Gw, err)
